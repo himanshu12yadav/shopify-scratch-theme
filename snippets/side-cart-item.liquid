@@ -1,0 +1,341 @@
+<style>
+  .side-cart-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    font-family: var(--body-font);
+    position: relative;
+  }
+
+  .side-cart-item:last-child {
+    border-bottom: none;
+  }
+
+  .side-cart-item-image {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #f8f8f8;
+  }
+
+  .side-cart-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .side-cart-item-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .side-cart-item-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  .side-cart-item-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .side-cart-item-title a:hover {
+    color: #000;
+  }
+
+  .side-cart-item-variant {
+    font-size: 0.8rem;
+    color: #666;
+    margin: 0;
+  }
+
+  .side-cart-item-price {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2e7d32;
+    margin: 0;
+  }
+
+  .side-cart-item-quantity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: auto;
+  }
+
+  .side-cart-item-quantity-label {
+    font-size: 0.8rem;
+    color: #666;
+  }
+
+  .side-cart-item-quantity-controls {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .side-cart-item-quantity-btn {
+    background: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #666;
+    transition: all 0.2s ease;
+  }
+
+  .side-cart-item-quantity-btn:hover {
+    background: #f5f5f5;
+    color: #000;
+  }
+
+  .side-cart-item-quantity-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .side-cart-item-quantity-input {
+    border: none;
+    width: 40px;
+    text-align: center;
+    padding: 0.25rem;
+    font-size: 0.9rem;
+    background: #fff;
+  }
+
+  .side-cart-item-quantity-input:focus {
+    outline: none;
+  }
+
+  .side-cart-item-remove {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #999;
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+    transition: color 0.2s ease;
+  }
+
+  .side-cart-item-remove:hover {
+    color: #e53e3e;
+  }
+
+  .side-cart-item-loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 480px) {
+    .side-cart-item {
+      gap: 0.75rem;
+      padding: 0.75rem;
+    }
+    
+    .side-cart-item-image {
+      width: 60px;
+      height: 60px;
+    }
+    
+    .side-cart-item-title {
+      font-size: 0.8rem;
+    }
+    
+    .side-cart-item-price {
+      font-size: 0.8rem;
+    }
+  }
+</style>
+
+<div class="side-cart-item" data-cart-item="{{ item.key }}">
+  <div class="side-cart-item-image">
+    {% if item.image %}
+      <img src="{{ item.image | image_url: width: 160 }}" 
+           alt="{{ item.product.title | escape }}" 
+           loading="lazy">
+    {% else %}
+      <div style="background: #f0f0f0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.7rem;">
+        No Image
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="side-cart-item-details">
+    <h3 class="side-cart-item-title">
+      <a href="{{ item.product.url }}">{{ item.product.title }}</a>
+    </h3>
+    
+    {% if item.product.has_only_default_variant == false %}
+      <p class="side-cart-item-variant">
+        {% for option in item.options_with_values %}
+          {% unless option.value == 'Default Title' %}
+            {{ option.name }}: {{ option.value }}
+            {% unless forloop.last %} • {% endunless %}
+          {% endunless %}
+        {% endfor %}
+      </p>
+    {% endif %}
+
+    <p class="side-cart-item-price">
+      {{ item.final_price | money_with_currency }}
+      {% if item.original_price != item.final_price %}
+        <span style="text-decoration: line-through; color: #999; font-weight: normal; margin-left: 0.5rem;">
+          {{ item.original_price | money_with_currency }}
+        </span>
+      {% endif %}
+    </p>
+
+    <div class="side-cart-item-quantity">
+      <span class="side-cart-item-quantity-label">Qty:</span>
+      <div class="side-cart-item-quantity-controls">
+        <button class="side-cart-item-quantity-btn" 
+                type="button" 
+                data-quantity-decrease
+                {% if item.quantity <= 1 %}disabled{% endif %}>
+          −
+        </button>
+        <input class="side-cart-item-quantity-input" 
+               type="number" 
+               value="{{ item.quantity }}" 
+               min="1" 
+               max="99"
+               data-quantity-input>
+        <button class="side-cart-item-quantity-btn" 
+                type="button" 
+                data-quantity-increase>
+          +
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <button class="side-cart-item-remove" 
+          type="button" 
+          aria-label="Remove {{ item.product.title | escape }} from cart"
+          data-remove-item>
+    ×
+  </button>
+</div>
+
+<script>
+  class SideCartItem extends HTMLElement {
+    constructor() {
+      super();
+      this.cartItem = this.querySelector('[data-cart-item]');
+      this.quantityInput = this.querySelector('[data-quantity-input]');
+      this.decreaseBtn = this.querySelector('[data-quantity-decrease]');
+      this.increaseBtn = this.querySelector('[data-quantity-increase]');
+      this.removeBtn = this.querySelector('[data-remove-item]');
+      this.itemKey = this.cartItem.dataset.cartItem;
+      
+      this.init();
+    }
+
+    init() {
+      // Quantity controls
+      this.decreaseBtn.addEventListener('click', () => this.changeQuantity(-1));
+      this.increaseBtn.addEventListener('click', () => this.changeQuantity(1));
+      this.quantityInput.addEventListener('change', () => this.updateQuantity());
+      
+      // Remove item
+      this.removeBtn.addEventListener('click', () => this.removeItem());
+    }
+
+    changeQuantity(change) {
+      const currentQuantity = parseInt(this.quantityInput.value);
+      const newQuantity = Math.max(1, currentQuantity + change);
+      this.quantityInput.value = newQuantity;
+      this.updateQuantity();
+    }
+
+    async updateQuantity() {
+      const quantity = parseInt(this.quantityInput.value);
+      if (quantity < 1) return;
+
+      this.setLoading(true);
+      
+      try {
+        const response = await fetch('/cart/change.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: this.itemKey,
+            quantity: quantity
+          })
+        });
+
+        if (response.ok) {
+          const cart = await response.json();
+          this.updateUI(quantity);
+          this.dispatchCartUpdate(cart);
+        }
+      } catch (error) {
+        console.error('Error updating quantity:', error);
+      } finally {
+        this.setLoading(false);
+      }
+    }
+
+    async removeItem() {
+      this.setLoading(true);
+      
+      try {
+        const response = await fetch('/cart/change.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: this.itemKey,
+            quantity: 0
+          })
+        });
+
+        if (response.ok) {
+          const cart = await response.json();
+          this.remove();
+          this.dispatchCartUpdate(cart);
+        }
+      } catch (error) {
+        console.error('Error removing item:', error);
+      } finally {
+        this.setLoading(false);
+      }
+    }
+
+    updateUI(quantity) {
+      this.quantityInput.value = quantity;
+      this.decreaseBtn.disabled = quantity <= 1;
+    }
+
+    setLoading(loading) {
+      this.cartItem.classList.toggle('side-cart-item-loading', loading);
+    }
+
+    dispatchCartUpdate(cart) {
+      document.dispatchEvent(new CustomEvent('cart:updated', {
+        detail: { cart }
+      }));
+    }
+  }
+
+  customElements.define('side-cart-item', SideCartItem);
+</script>
+

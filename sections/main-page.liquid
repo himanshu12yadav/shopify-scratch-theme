@@ -1,0 +1,836 @@
+<div class="page-section">
+    <div class="page-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">{{ page.title }}</h1>
+            {% if page.content != blank %}
+                <div class="page-content">
+                    {{ page.content }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Custom Content Blocks -->
+        {% if section.blocks.size > 0 %}
+            <div class="page-blocks">
+                {% for block in section.blocks %}
+                    <div class="page-block page-block--{{ block.type }}" {{ block.shopify_attributes }}>
+                        {% case block.type %}
+                            
+                            {% when 'text' %}
+                                <div class="text-block">
+                                    {% if block.settings.heading != blank %}
+                                        <h2 class="block-heading">{{ block.settings.heading }}</h2>
+                                    {% endif %}
+                                    {% if block.settings.text != blank %}
+                                        <div class="block-text">
+                                            {{ block.settings.text }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                            {% when 'image' %}
+                                <div class="image-block">
+                                    {% if block.settings.image != blank %}
+                                        <div class="image-wrapper">
+                                            <img
+                                                src="{{ block.settings.image | image_url: width: 1200 }}"
+                                                alt="{{ block.settings.image.alt | default: block.settings.heading }}"
+                                                class="block-image"
+                                                loading="lazy"
+                                            />
+                                        </div>
+                                    {% endif %}
+                                    {% if block.settings.heading != blank %}
+                                        <h3 class="image-heading">{{ block.settings.heading }}</h3>
+                                    {% endif %}
+                                    {% if block.settings.text != blank %}
+                                        <div class="image-text">
+                                            {{ block.settings.text }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                            {% when 'image_with_text' %}
+                                <div class="image-text-block">
+                                    <div class="image-text-content">
+                                        {% if block.settings.image != blank %}
+                                            <div class="image-text-image">
+                                                <img
+                                                    src="{{ block.settings.image | image_url: width: 800 }}"
+                                                    alt="{{ block.settings.image.alt | default: block.settings.heading }}"
+                                                    loading="lazy"
+                                                />
+                                            </div>
+                                        {% endif %}
+                                        <div class="image-text-info">
+                                            {% if block.settings.heading != blank %}
+                                                <h3 class="image-text-heading">{{ block.settings.heading }}</h3>
+                                            {% endif %}
+                                            {% if block.settings.text != blank %}
+                                                <div class="image-text-description">
+                                                    {{ block.settings.text }}
+                                                </div>
+                                            {% endif %}
+                                            {% if block.settings.button_text != blank and block.settings.button_url != blank %}
+                                                <a href="{{ block.settings.button_url }}" class="image-text-button">
+                                                    {{ block.settings.button_text }}
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                            {% when 'video' %}
+                                <div class="video-block">
+                                    {% if block.settings.heading != blank %}
+                                        <h3 class="video-heading">{{ block.settings.heading }}</h3>
+                                    {% endif %}
+                                    {% if block.settings.video_url != blank %}
+                                        <div class="video-wrapper">
+                                            {% if block.settings.video_url contains 'youtube.com' or block.settings.video_url contains 'youtu.be' %}
+                                                {% assign video_id = block.settings.video_url | split: '/' | last %}
+                                                {% if video_id contains '?' %}
+                                                    {% assign video_id = video_id | split: '?' | first %}
+                                                {% endif %}
+                                                <iframe
+                                                    src="https://www.youtube.com/embed/{{ video_id }}"
+                                                    frameborder="0"
+                                                    allowfullscreen
+                                                    class="video-iframe"
+                                                ></iframe>
+                                            {% elsif block.settings.video_url contains 'vimeo.com' %}
+                                                {% assign video_id = block.settings.video_url | split: '/' | last %}
+                                                <iframe
+                                                    src="https://player.vimeo.com/video/{{ video_id }}"
+                                                    frameborder="0"
+                                                    allowfullscreen
+                                                    class="video-iframe"
+                                                ></iframe>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    {% if block.settings.text != blank %}
+                                        <div class="video-text">
+                                            {{ block.settings.text }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                            {% when 'spacer' %}
+                                <div class="spacer-block" style="height: {{ block.settings.height }}px;"></div>
+
+                            {% when 'button' %}
+                                <div class="button-block">
+                                    {% if block.settings.button_text != blank and block.settings.button_url != blank %}
+                                        <a href="{{ block.settings.button_url }}" class="page-button page-button--{{ block.settings.button_style }}">
+                                            {{ block.settings.button_text }}
+                                        </a>
+                                    {% endif %}
+                                </div>
+
+                            {% when 'columns' %}
+                                <div class="columns-block">
+                                    {% if block.settings.heading != blank %}
+                                        <h3 class="columns-heading">{{ block.settings.heading }}</h3>
+                                    {% endif %}
+                                    <div class="columns-grid columns-grid--{{ block.settings.columns_count }}">
+                                        {% for i in (1..block.settings.columns_count) %}
+                                            {% assign column_heading = 'column_' | append: i | append: '_heading' %}
+                                            {% assign column_text = 'column_' | append: i | append: '_text' %}
+                                            {% assign column_image = 'column_' | append: i | append: '_image' %}
+                                            
+                                            <div class="column-item">
+                                                {% if block.settings[column_image] != blank %}
+                                                    <div class="column-image">
+                                                        <img
+                                                            src="{{ block.settings[column_image] | image_url: width: 400 }}"
+                                                            alt="{{ block.settings[column_image].alt | default: block.settings[column_heading] }}"
+                                                            loading="lazy"
+                                                        />
+                                                    </div>
+                                                {% endif %}
+                                                {% if block.settings[column_heading] != blank %}
+                                                    <h4 class="column-heading">{{ block.settings[column_heading] }}</h4>
+                                                {% endif %}
+                                                {% if block.settings[column_text] != blank %}
+                                                    <div class="column-text">
+                                                        {{ block.settings[column_text] }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                        {% endcase %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .page-section {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: #fafafa;
+        min-height: 100vh;
+        padding: 2rem 1rem;
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 4rem;
+        background: white;
+        padding: 3rem 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .page-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+    }
+
+    .page-content {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        color: #666;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .page-content h2,
+    .page-content h3,
+    .page-content h4 {
+        color: #333;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .page-content p {
+        margin-bottom: 1.5rem;
+    }
+
+    .page-content a {
+        color: #2e7d32;
+        text-decoration: underline;
+    }
+
+    .page-content ul,
+    .page-content ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+    }
+
+    .page-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    .page-blocks {
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+    }
+
+    .page-block {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    /* Text Block */
+    .text-block {
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+
+    .block-heading {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+    }
+
+    .block-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #666;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Image Block */
+    .image-block {
+        text-align: center;
+    }
+
+    .image-wrapper {
+        overflow: hidden;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .block-image {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+
+    .block-image:hover {
+        transform: scale(1.05);
+    }
+
+    .image-heading {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #333;
+        margin: 2rem 0 1rem 0;
+        padding: 0 2rem;
+    }
+
+    .image-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #666;
+        padding: 0 2rem 2rem 2rem;
+    }
+
+    /* Image with Text Block */
+    .image-text-block {
+        padding: 3rem 2rem;
+    }
+
+    .image-text-content {
+        display: flex;
+        align-items: center;
+        gap: 3rem;
+    }
+
+    .image-text-image {
+        flex: 1;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .image-text-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .image-text-info {
+        flex: 1;
+    }
+
+    .image-text-heading {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1.5rem;
+    }
+
+    .image-text-description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #666;
+        margin-bottom: 2rem;
+    }
+
+    .image-text-button {
+        display: inline-block;
+        background: #000;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.2s ease;
+    }
+
+    .image-text-button:hover {
+        background: #333;
+        transform: translateY(-2px);
+    }
+
+    /* Video Block */
+    .video-block {
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+
+    .video-heading {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 2rem;
+    }
+
+    .video-wrapper {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        height: 0;
+        overflow: hidden;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .video-iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .video-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #666;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Button Block */
+    .button-block {
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+
+    .page-button {
+        display: inline-block;
+        padding: 1rem 2.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.2s ease;
+        font-size: 1.1rem;
+    }
+
+    .page-button--primary {
+        background: #000;
+        color: white;
+    }
+
+    .page-button--primary:hover {
+        background: #333;
+        transform: translateY(-2px);
+    }
+
+    .page-button--secondary {
+        background: transparent;
+        color: #000;
+        border: 2px solid #000;
+    }
+
+    .page-button--secondary:hover {
+        background: #000;
+        color: white;
+    }
+
+    .page-button--outline {
+        background: transparent;
+        color: #2e7d32;
+        border: 2px solid #2e7d32;
+    }
+
+    .page-button--outline:hover {
+        background: #2e7d32;
+        color: white;
+    }
+
+    /* Columns Block */
+    .columns-block {
+        padding: 3rem 2rem;
+    }
+
+    .columns-heading {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #333;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .columns-grid {
+        display: grid;
+        gap: 2rem;
+    }
+
+    .columns-grid--2 {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .columns-grid--3 {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .columns-grid--4 {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .column-item {
+        text-align: center;
+    }
+
+    .column-image {
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .column-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .column-heading {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .column-text {
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #666;
+    }
+
+    /* Spacer Block */
+    .spacer-block {
+        background: transparent;
+        box-shadow: none;
+    }
+
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .page-header {
+            padding: 2rem 1rem;
+        }
+
+        .block-heading {
+            font-size: 2rem;
+        }
+
+        .image-text-content {
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .columns-grid--2,
+        .columns-grid--3,
+        .columns-grid--4 {
+            grid-template-columns: 1fr;
+        }
+
+        .text-block,
+        .image-text-block,
+        .video-block,
+        .button-block,
+        .columns-block {
+            padding: 2rem 1rem;
+        }
+    }
+</style>
+
+{% schema %}
+{
+  "name": "Page",
+  "tag": "section",
+  "class": "section",
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Add a heading"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Add your content here</p>"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text"
+        }
+      ]
+    },
+    {
+      "type": "image_with_text",
+      "name": "Image with Text",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Image with text"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Pair large text with an image to tell a story, explain a detail about your product, or describe a new promotion.</p>"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button text"
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "Button URL"
+        }
+      ]
+    },
+    {
+      "type": "video",
+      "name": "Video",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading"
+        },
+        {
+          "type": "url",
+          "id": "video_url",
+          "label": "Video URL",
+          "info": "YouTube or Vimeo URL"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Description"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button text",
+          "default": "Click me"
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "Button URL"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Primary"
+            },
+            {
+              "value": "secondary",
+              "label": "Secondary"
+            },
+            {
+              "value": "outline",
+              "label": "Outline"
+            }
+          ],
+          "default": "primary"
+        }
+      ]
+    },
+    {
+      "type": "columns",
+      "name": "Columns",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "columns_count",
+          "label": "Number of columns",
+          "options": [
+            {
+              "value": "2",
+              "label": "2"
+            },
+            {
+              "value": "3",
+              "label": "3"
+            },
+            {
+              "value": "4",
+              "label": "4"
+            }
+          ],
+          "default": "3"
+        },
+        {
+          "type": "header",
+          "content": "Column 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "column_1_image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "column_1_heading",
+          "label": "Heading"
+        },
+        {
+          "type": "textarea",
+          "id": "column_1_text",
+          "label": "Text"
+        },
+        {
+          "type": "header",
+          "content": "Column 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "column_2_image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "column_2_heading",
+          "label": "Heading"
+        },
+        {
+          "type": "textarea",
+          "id": "column_2_text",
+          "label": "Text"
+        },
+        {
+          "type": "header",
+          "content": "Column 3"
+        },
+        {
+          "type": "image_picker",
+          "id": "column_3_image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "column_3_heading",
+          "label": "Heading"
+        },
+        {
+          "type": "textarea",
+          "id": "column_3_text",
+          "label": "Text"
+        },
+        {
+          "type": "header",
+          "content": "Column 4"
+        },
+        {
+          "type": "image_picker",
+          "id": "column_4_image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "column_4_heading",
+          "label": "Heading"
+        },
+        {
+          "type": "textarea",
+          "id": "column_4_text",
+          "label": "Text"
+        }
+      ]
+    },
+    {
+      "type": "spacer",
+      "name": "Spacer",
+      "settings": [
+        {
+          "type": "range",
+          "id": "height",
+          "label": "Height",
+          "min": 20,
+          "max": 200,
+          "step": 10,
+          "unit": "px",
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Page Settings"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#fafafa"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    }
+  ]
+}
+{% endschema %}

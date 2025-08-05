@@ -1,0 +1,181 @@
+{% layout 'theme' %}
+
+<style>
+    .cart-page {
+        padding: 2rem 1rem;
+    }
+
+    .cart-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 2rem;
+    }
+
+    .cart-table th, .cart-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #eee;
+        vertical-align: top;
+    }
+
+    .cart-item-image {
+        width: 80px;
+        border: 1px solid #ddd;
+    }
+
+    .cart-item-details {
+        padding-left: 1rem;
+    }
+
+    .cart-buttons {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .quantity-input {
+        width: 60px;
+    }
+
+    .cart-summary {
+        text-align: right;
+        max-width: 400px;
+        margin-left: auto;
+    }
+
+    .cart-note textarea {
+        width: 100%;
+        height: 80px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn--primary {
+        background: #000;
+        color: #fff;
+    }
+
+    .btn--secondary {
+        background: #eee;
+        color: #333;
+    }
+</style>
+
+<div class="page-width cart-page">
+    <h1 class="section-header">
+        Your Shopping Cart
+    </h1>
+
+    {% if cart.item_count == 0 %}
+        <p class="empty-cart-message">
+            Your cart is currently empty.
+        </p>
+        <a href='/' class="btn btn--primary">
+            Continue Shopping
+        </a>
+
+    {% else %}
+        <form action="/cart" method="post" novalidate>
+            <table class="cart-table full-width">
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in cart.items %}
+                    <tr class="cart-item">
+                        <td class="cart-product-info">
+                            <a href="{{ item.url }}">
+                                <img src="{{ item.image | img_url: width: 100 }}" alt="{{ item.title | escape }}"
+                                     class="cart-item-image"/>
+                            </a>
+                            <div class="cart-item-details">
+                                <a href="{{ item.url }}" class="cart-item-title">
+                                    {{ item.product.title }}
+                                </a>
+                                {% if item.varaint.title != 'Default Title' %}
+                                    <p class="cart-item-variant">
+                                        {{ item.variant.title }}
+                                    </p>
+                                {% endif %}
+
+                                {% if item.selling_plan_allocation %}
+                                    <p class="cart-item-subscription">
+                                        {{ item.selling_plan_allocation.selling_plan.name }}
+                                    </p>
+                                {% endif %}
+
+                                {% for p in item.properties %}
+                                    {% unless p.last == blank %}
+                                        <p class="cart-item-property">
+                                            {{ p.first }} : {{ p.last }}
+                                        </p>
+                                    {% endunless %}
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td class="cart-price">
+                            {{ item.original_price | money_with_currency }}
+                        </td>
+
+                        <td class="cart-quantity">
+                            <p class="quantity-text">{{ item.quantity }}</p>
+
+                        </td>
+                        <td class="cart-line-total">
+                            {{ item.line_price | money_with_currency }}
+                        </td>
+                        <td class="cart-remove">
+                            <a href="{{ item.url_to_remove }}" class="remove-item-link">Remove</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="cart-footer">
+                <div class="cart-note">
+                    <label for="cartSpecialInstructions">
+                        Order note
+                    </label>
+                    <textarea name="note" id="cartSpecialInstructions">
+                        {{ cart.note }}
+                    </textarea>
+                </div>
+
+                <div class="cart-summary">
+                    {% if cart.cart_level_discount_application.size > 0 %}
+                        <div class="cart-discounts">
+                            {% for discount in cart.cart_level_discount_applications %}
+                                <p class="discount">
+                                    {{ discount.title }} : - {{ discount.total_allocated_amount | money_with_currency }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <p class="cart-subtotal">
+                        <strong>subtotal: </strong> {{ cart.total_price | money_with_currency }}
+                    </p>
+
+                    <div class="cart-buttons">
+                        
+                        <a href="/checkout" class="btn btn--primary">
+                            Checkout
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    {% endif %}
+
+</div>

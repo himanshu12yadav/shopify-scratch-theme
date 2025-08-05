@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "collection": {
+      "type": "main-collection"
+    },
+    "sidebar": {
+      "type": "sidebar"
+    }
+  },
+  "order": [
+    "collection",
+    "sidebar"
+  ]
+}

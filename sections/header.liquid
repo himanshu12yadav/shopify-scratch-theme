@@ -1,0 +1,66 @@
+<style>
+    .site-header {
+        background-color: #fff;
+        border-bottom: 1px solid #eee;
+        padding: 1rem 2rem;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        position: relative;
+    }
+
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .header-logo img {
+        max-height: 40px;
+    }
+
+    .header-nav ul {
+        list-style: none;
+        display: flex;
+        gap: 1.5rem;
+        margin: 0;
+        padding: 0;
+    }
+
+    .header-nav a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .header-cart a {
+        text-decoration: none;
+        color: #333;
+        font-weight: bold;
+    }
+
+</style>
+
+<header class="site-header">
+    <div class="header-container">
+        <div class="header-logo">
+            <a href="{{ routes.root_url }}">
+                <img src="{{ settings.logo | img_url: 'medium' }}" alt="{{ shop.name }}">
+            </a>
+        </div>
+
+        <nav class="header-nav">
+            <ul>
+                {% for link in linklists['main-menu'].links %}
+                    <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                {% endfor %}
+            </ul>
+        </nav>
+
+        <div class="header-cart sidebar-test-trigger" onclick="event.preventDefault(); console.log('Cart clicked'); console.log('Dispatching sidebar:toggle event'); document.dispatchEvent(new CustomEvent('sidebar:toggle'))">
+            <a href="{{ routes.cart_url }}" onclick="event.preventDefault()">
+                🛒 ({{ cart.item_count }})
+            </a>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,287 @@
+<style>
+  .sidebar-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 100%;
+    max-width: 480px;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 9999;
+    overflow-y: auto;
+    font-family: var(--body-font);
+  }
+
+  .sidebar-drawer.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    z-index: 9998;
+  }
+
+  .sidebar-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #eee;
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .sidebar-title {
+    font-family: var(--heading-font);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+  }
+
+  .sidebar-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    line-height: 1;
+    color: #666;
+    transition: color 0.2s ease;
+  }
+
+  .sidebar-close:hover,
+  .sidebar-close:focus {
+    color: #000;
+    outline: 2px solid #000;
+    outline-offset: 2px;
+  }
+
+  .sidebar-content {
+    padding: 2rem;
+  }
+
+  .sidebar-section {
+    margin-bottom: 2rem;
+  }
+
+  .sidebar-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .sidebar-section h3 {
+    font-family: var(--heading-font);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: #333;
+  }
+
+  .sidebar-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .sidebar-section li {
+    margin-bottom: 0.5rem;
+  }
+
+  .sidebar-section a {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    display: block;
+    padding: 0.5rem 0;
+  }
+
+  .sidebar-section a:hover,
+  .sidebar-section a:focus {
+    color: #000;
+    outline: 2px solid #000;
+    outline-offset: 2px;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .sidebar-drawer {
+      max-width: 100%;
+      width: 85%;
+    }
+  }
+
+  /* Prevent body scroll when drawer is open */
+  body.sidebar-open {
+    overflow: hidden;
+  }
+
+  /* Test trigger button */
+  .sidebar-test-trigger {
+    cursor: pointer;
+  }
+</style>
+
+
+
+<sidebar-drawer class="sidebar-component">
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  
+  <aside class="sidebar-drawer" 
+         role="dialog" 
+         aria-modal="true" 
+         aria-labelledby="sidebar-title"
+         aria-hidden="true">
+    
+    <header class="sidebar-header">
+      <h2 id="sidebar-title" class="sidebar-title">{{ section.settings.title | default: 'Menu' }}</h2>
+      <button class="sidebar-close" 
+              type="button" 
+              aria-label="Close sidebar"
+              data-sidebar-close>
+        ×
+      </button>
+    </header>
+    
+    <div class="sidebar-content">
+      <!-- Cart Items Section -->
+      <div class="sidebar-section">
+        <h3>Shopping Cart ({{ cart.item_count }})</h3>
+        {% if cart.items.size > 0 %}
+          <div class="side-cart-items">
+            {% for item in cart.items %}
+              <side-cart-item>
+                {% render 'side-cart-item', item: item %}
+              </side-cart-item>
+            {% endfor %}
+          </div>
+          
+          <!-- Cart Total -->
+          <div class="side-cart-total">
+            <p style="display: flex; justify-content: space-between; font-weight: 600; border-top: 1px solid #eee; padding-top: 1rem; margin-top: 1rem;">
+              <span>Total:</span>
+              <span>{{ cart.total_price | money_with_currency }}</span>
+            </p>
+            <a href="{{ routes.cart_url }}" style="display: block; background: #000; color: #fff; text-align: center; padding: 0.75rem; text-decoration: none; border-radius: 4px; margin-top: 1rem;">
+              View Cart
+            </a>
+          </div>
+        {% else %}
+          <p style="text-align: center; color: #666; padding: 2rem 0;">Your cart is empty</p>
+        {% endif %}
+      </div>
+
+      <!-- Other Sections -->
+      {% if section.blocks.size > 0 %}
+        {% for block in section.blocks %}
+          {% case block.type %}
+            {% when 'navigation' %}
+              <div class="sidebar-section" {{ block.shopify_attributes }}>
+                {% if block.settings.heading != blank %}
+                  <h3>{{ block.settings.heading }}</h3>
+                {% endif %}
+                {% if block.settings.menu != blank %}
+                  <ul>
+                    {% for link in linklists[block.settings.menu].links %}
+                      <li>
+                        <a href="{{ link.url }}">{{ link.title }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </div>
+            
+            {% when 'text' %}
+              <div class="sidebar-section" {{ block.shopify_attributes }}>
+                {% if block.settings.heading != blank %}
+                  <h3>{{ block.settings.heading }}</h3>
+                {% endif %}
+                {% if block.settings.text != blank %}
+                  <div>{{ block.settings.text }}</div>
+                {% endif %}
+              </div>
+          {% endcase %}
+        {% endfor %}
+      {% endif %}
+    </div>
+  </aside>
+</sidebar-drawer>
+
+
+
+{% schema %}
+{
+  "name": "Sidebar Drawer",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Sidebar Title",
+      "default": "Menu"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "navigation",
+      "name": "Navigation",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu",
+          "default": "main-menu"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sidebar Drawer",
+      "blocks": [
+        {
+          "type": "navigation"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

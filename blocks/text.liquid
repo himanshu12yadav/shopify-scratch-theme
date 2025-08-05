@@ -1,0 +1,56 @@
+{% liquid
+  assign text_content = block.settings.text_content
+  assign text_element = block.settings.text_element
+  assign text_class = block.settings.text_class
+%}
+
+{% if text_content != blank %}
+  <div class="text-block" {{ block.shopify_attributes }}>
+    <{{ text_element }} class="{{ text_class }}">
+      {{ text_content }}
+    </{{ text_element }}>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Text Block",
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "text_content",
+      "label": "Text Content",
+      "default": "Enter your text here"
+    },
+    {
+      "type": "select",
+      "id": "text_element",
+      "label": "Text Element",
+      "default": "p",
+      "options": [
+        { "value": "h1", "label": "Heading 1" },
+        { "value": "h2", "label": "Heading 2" },
+        { "value": "h3", "label": "Heading 3" },
+        { "value": "h4", "label": "Heading 4" },
+        { "value": "h5", "label": "Heading 5" },
+        { "value": "h6", "label": "Heading 6" },
+        { "value": "p", "label": "Paragraph" },
+        { "value": "div", "label": "Div" },
+        { "value": "span", "label": "Span" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "text_class",
+      "label": "CSS Class",
+      "default": "text-content"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text Block",
+      "category":"Custom"
+    }
+  ]
+}
+{% endschema %}

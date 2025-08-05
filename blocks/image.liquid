@@ -1,0 +1,165 @@
+{% liquid
+  assign image = block.settings.image
+  assign image_alt = block.settings.image_alt
+  assign image_link = block.settings.image_link
+  assign image_width = block.settings.image_width
+  assign image_style = block.settings.image_style
+  assign image_effect = block.settings.image_effect
+  assign image_overlay = block.settings.image_overlay
+  assign overlay_color = block.settings.overlay_color
+  assign overlay_opacity = block.settings.overlay_opacity
+  assign border_width = block.settings.border_width
+  assign border_color = block.settings.border_color
+  assign shadow_style = block.settings.shadow_style
+  assign image_class = block.settings.image_class
+%}
+
+{% if image != blank %}
+  <div class="image-block {{ image_effect }} {{ shadow_style }}" {{ block.shopify_attributes }}>
+    {% if image_link != blank %}<a href="{{ image_link }}">{% endif %}
+      <div class="image-container image-{{ image_style }}" 
+           style="max-width: {{ image_width }}px; border: {{ border_width }}px solid {{ border_color }};">
+        
+        {% if image_overlay %}
+          <div class="image-overlay" 
+               style="background-color: {{ overlay_color }}; opacity: {{ overlay_opacity }}%;"></div>
+        {% endif %}
+        
+        <img src="{{ image | image_url: width: image_width }}"
+             srcset="{{ image | image_url: width: 300 }} 300w,
+                     {{ image | image_url: width: 600 }} 600w,
+                     {{ image | image_url: width: 900 }} 900w,
+                     {{ image | image_url: width: 1200 }} 1200w"
+             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, {{ image_width }}px"
+             alt="{{ image_alt | default: image.alt }}"
+             class="responsive-image {{ image_class }}"
+             loading="lazy"
+             width="{{ image.width }}"
+             height="{{ image.height }}">
+      </div>
+    {% if image_link != blank %}</a>{% endif %}
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Image",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Select Image"
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "Alt Text",
+      "info": "Leave empty to use image's alt text"
+    },
+    {
+      "type": "url",
+      "id": "image_link",
+      "label": "Image Link"
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "label": "Max Width",
+      "min": 100,
+      "max": 1200,
+      "step": 50,
+      "default": 600,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "image_style",
+      "label": "Image Style",
+      "default": "standard",
+      "options": [
+        { "value": "standard", "label": "Standard" },
+        { "value": "rounded", "label": "Rounded Corners" },
+        { "value": "circular", "label": "Circular" },
+        { "value": "polaroid", "label": "Polaroid Frame" },
+        { "value": "vintage", "label": "Vintage Border" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "image_effect",
+      "label": "Image Effect",
+      "default": "none",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "hover-zoom", "label": "Zoom on Hover" },
+        { "value": "hover-tilt", "label": "Tilt on Hover" },
+        { "value": "hover-fade", "label": "Fade on Hover" },
+        { "value": "grayscale", "label": "Grayscale" },
+        { "value": "sepia", "label": "Sepia" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "shadow_style",
+      "label": "Shadow Effect",
+      "default": "none",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "soft-shadow", "label": "Soft Shadow" },
+        { "value": "hard-shadow", "label": "Hard Shadow" },
+        { "value": "floating", "label": "Floating Effect" },
+        { "value": "inner-shadow", "label": "Inner Shadow" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "image_overlay",
+      "label": "Enable Overlay",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay Opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 30,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "label": "Border Width",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border Color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "text",
+      "id": "image_class",
+      "label": "CSS Class"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image Block",
+      "category":"Custom"
+    }
+    ]
+}
+{% endschema %}
